@@ -2,6 +2,12 @@
 
 export function playNotificationSound() {
   try {
+    // Check if Web Audio API is supported
+    if (!window.AudioContext && !(window as any).webkitAudioContext) {
+      console.warn('Web Audio API not supported')
+      return
+    }
+
     // Create a simple notification sound using Web Audio API
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
     const oscillator = audioContext.createOscillator()

@@ -47,23 +47,6 @@ export default function PomodoroTimer() {
     requestPermission()
   }, [requestPermission])
 
-  // Timer countdown logic
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null
-
-    if (isActive && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((time) => time - 1)
-      }, 1000)
-    } else if (timeLeft === 0) {
-      handleTimerComplete()
-    }
-
-    return () => {
-      if (interval) clearInterval(interval)
-    }
-  }, [isActive, timeLeft])
-
   const handleTimerComplete = useCallback(() => {
     setIsActive(false)
     playNotificationSound()
@@ -105,6 +88,23 @@ export default function PomodoroTimer() {
       setTimeLeft(TIMER_DURATIONS.work)
     }
   }, [mode, pomodoroCount, stats, setStats, showNotification])
+
+  // Timer countdown logic
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null
+
+    if (isActive && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft((time) => time - 1)
+      }, 1000)
+    } else if (timeLeft === 0) {
+      handleTimerComplete()
+    }
+
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [isActive, timeLeft, handleTimerComplete])
 
   const toggleTimer = () => {
     setIsActive(!isActive)
