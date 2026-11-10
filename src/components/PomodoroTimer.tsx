@@ -34,6 +34,7 @@ export default function PomodoroTimer() {
   const [pomodoroCount, setPomodoroCount] = useState(0)
   const [currentTask, setCurrentTask] = useState('Study Session')
   const [showResetModal, setShowResetModal] = useState(false)
+  const [endTime, setEndTime] = useState<number | null>(null)
   
   const [stats, setStats] = useLocalStorage<SessionStats>('pomodoroStats', {
     completedPomodoros: 0,
@@ -44,13 +45,9 @@ export default function PomodoroTimer() {
 
   const { requestPermission, showNotification } = useNotification()
 
-  // Request notification permission on mount
-  useEffect(() => {
-    requestPermission()
-  }, [requestPermission])
-
   const handleTimerComplete = useCallback(() => {
     setIsActive(false)
+    setEndTime(null)
     playNotificationSound()
 
     if (mode === 'work') {
@@ -91,14 +88,49 @@ export default function PomodoroTimer() {
     }
   }, [mode, pomodoroCount, stats, setStats, showNotification])
 
-  // Timer countdown logic
+  // Request notification permission on mount
+  useEffect(() => {
+    requestPermission()
+  }, [requestPermission])
+
+  // Handle visibility change - sync timer when tab becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isActive && endTime) {
+        // Tab became visible - sync the time
+        const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000))
+        setTimeLeft(remaining)
+        
+        if (remaining === 0) {
+          handleTimerComplete()
+        }
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [isActive, endTime, handleTimerComplete])
+
+  // Timer countdown logic using timestamp-based calculation
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null
 
     if (isActive && timeLeft > 0) {
+      // Set end time when timer starts
+      if (endTime === null) {
+        setEndTime(Date.now() + timeLeft * 1000)
+      }
+
       interval = setInterval(() => {
-        setTimeLeft((time) => time - 1)
-      }, 1000)
+        if (endTime) {
+          const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000))
+          setTimeLeft(remaining)
+          
+          if (remaining === 0) {
+            handleTimerComplete()
+          }
+        }
+      }, 100) // Check more frequently for accuracy
     } else if (timeLeft === 0) {
       handleTimerComplete()
     }
@@ -106,19 +138,28 @@ export default function PomodoroTimer() {
     return () => {
       if (interval) clearInterval(interval)
     }
-  }, [isActive, timeLeft, handleTimerComplete])
+  }, [isActive, timeLeft, endTime, handleTimerComplete])
 
   const toggleTimer = () => {
+    if (!isActive) {
+      // Starting timer - set end time
+      setEndTime(Date.now() + timeLeft * 1000)
+    } else {
+      // Pausing timer - clear end time
+      setEndTime(null)
+    }
     setIsActive(!isActive)
   }
 
   const resetTimer = () => {
     setIsActive(false)
+    setEndTime(null)
     setTimeLeft(TIMER_DURATIONS[mode])
   }
 
   const skipSession = () => {
     setIsActive(false)
+    setEndTime(null)
     if (mode === 'work') {
       setMode('shortBreak')
       setTimeLeft(TIMER_DURATIONS.shortBreak)

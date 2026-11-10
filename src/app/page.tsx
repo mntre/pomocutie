@@ -38,7 +38,6 @@ export default function Home() {
 
         <footer className="text-center mt-12 text-sm text-gray-600 dark:text-gray-300">
           <p>Stay focused, stay productive! 📚✨</p>
-          <p className="mt-2">Made with 💙 featuring Bubu & Dudu</p>
         </footer>
       </div>
     </main>
