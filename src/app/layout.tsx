@@ -5,13 +5,17 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Pomodoro Timer - Accountancy Student Study App',
-  description: 'A Pomodoro timer designed for accountancy students featuring Bubu and Dudu characters. Stay focused and productive with customized study sessions.',
-  keywords: ['pomodoro', 'timer', 'accountancy', 'study', 'productivity', 'bubu', 'dudu'],
-  authors: [{ name: 'Accountancy Pomodoro' }],
+  title: 'Pomocutie - Pomodoro Timer with Bubu & Dudu',
+  description: 'A cute Pomodoro timer featuring Bubu and Dudu characters. Stay focused and productive with customized study sessions.',
+  keywords: ['pomodoro', 'timer', 'study', 'productivity', 'bubu', 'dudu', 'pomocutie'],
+  authors: [{ name: 'Pomocutie' }],
+  icons: {
+    icon: '/icon.svg',
+    apple: '/icon.svg',
+  },
   openGraph: {
-    title: 'Pomodoro Timer - Accountancy Student Study App',
-    description: 'Stay focused with our cute Bubu and Dudu Pomodoro timer for accountancy students',
+    title: 'Pomocutie - Pomodoro Timer with Bubu & Dudu',
+    description: 'Stay focused with our cute Bubu and Dudu Pomodoro timer',
     type: 'website',
   },
 }

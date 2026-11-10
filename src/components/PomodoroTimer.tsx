@@ -7,6 +7,7 @@ import TimerControls from './TimerControls'
 import TaskSelector from './TaskSelector'
 import Statistics from './Statistics'
 import MotivationalQuote from './MotivationalQuote'
+import ConfirmModal from './ConfirmModal'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { useNotification } from '@/hooks/useNotification'
 import { playNotificationSound } from '@/utils/sound'
@@ -32,6 +33,7 @@ export default function PomodoroTimer() {
   const [isActive, setIsActive] = useState(false)
   const [pomodoroCount, setPomodoroCount] = useState(0)
   const [currentTask, setCurrentTask] = useState('Study Session')
+  const [showResetModal, setShowResetModal] = useState(false)
   
   const [stats, setStats] = useLocalStorage<SessionStats>('pomodoroStats', {
     completedPomodoros: 0,
@@ -127,15 +129,18 @@ export default function PomodoroTimer() {
   }
 
   const resetStats = () => {
-    if (confirm('Are you sure you want to reset all statistics?')) {
-      setStats({
-        completedPomodoros: 0,
-        totalWorkMinutes: 0,
-        currentStreak: 0,
-        lastSessionDate: new Date().toDateString(),
-      })
-      setPomodoroCount(0)
-    }
+    setShowResetModal(true)
+  }
+
+  const confirmResetStats = () => {
+    setStats({
+      completedPomodoros: 0,
+      totalWorkMinutes: 0,
+      currentStreak: 0,
+      lastSessionDate: new Date().toDateString(),
+    })
+    setPomodoroCount(0)
+    setShowResetModal(false)
   }
 
   return (
@@ -176,6 +181,17 @@ export default function PomodoroTimer() {
       <MotivationalQuote />
 
       <Statistics stats={stats} onReset={resetStats} />
+
+      <ConfirmModal
+        isOpen={showResetModal}
+        title="Reset Statistics?"
+        message="This will permanently delete all your Pomodoro statistics and progress. This action cannot be undone."
+        confirmText="Yes, Reset"
+        cancelText="Cancel"
+        onConfirm={confirmResetStats}
+        onCancel={() => setShowResetModal(false)}
+        type="danger"
+      />
     </div>
   )
 }
